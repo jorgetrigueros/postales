@@ -11,8 +11,20 @@
   <!-- PWA: manifest (créalo como manifest.webmanifest en la raíz) -->
   <link rel="manifest" href="manifest.webmanifest" />
 
-  <!-- (Opcional pero recomendable) Icono para añadir a pantalla de inicio en iOS -->
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <!-- FAVICONS -->
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png" />
+
+  <!-- Iconos para PWA / Android -->
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png" />
+
+  <!-- iOS -->
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png" />
+
+  <!-- Safari pinned tab (si tienes el SVG) -->
+  <link rel="mask-icon" href="icons/safari-pinned-tab.svg" color="#050816" />
 
   <style>
     :root {
@@ -224,6 +236,7 @@
       overflow: hidden;
     }
 
+    /*
     .postcard-media img {
       width: 100%;
       height: 100%;
@@ -239,7 +252,43 @@
         rgba(15, 23, 42, 1),
         rgba(15, 23, 42, 0.35)
       );
+    }*/
+
+    .postcard-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.03);
+      filter: grayscale(0.1) saturate(0.9) brightness(0.95);
+      opacity: 0.85;
+      transition:
+        transform 0.35s ease,
+        filter 0.35s ease,
+        opacity 0.35s ease;
+    }  
+    
+    .postcard-media-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(15, 23, 42, 0.95),
+        rgba(15, 23, 42, 0.55)
+      );
+      transition: opacity 0.35s ease;
     }
+    
+    /* Cuando el audio de la postal está sonando */
+    .postcard.is-playing .postcard-media img {
+      transform: scale(1.06);
+      filter: none;      /* colores completos */
+      opacity: 1;
+    }
+
+    /* Reducimos el velo oscuro para que se vea más “despierta” */
+    .postcard.is-playing .postcard-media-overlay {
+      opacity: 0.25;
+    }    
 
     .postcard-body {
       padding: 1.1rem 1rem 1.25rem;
@@ -1049,6 +1098,7 @@ Y cuando hoy cierro los ojos y escucho las olas, vuelvo allí, y dejo de sentirm
 
       let currentAudio = null;
       let currentPlayButton = null;
+      let currentPostcard = null;
 
       const players = document.querySelectorAll("[data-player]");
 
@@ -1137,28 +1187,51 @@ Y cuando hoy cierro los ojos y escucho las olas, vuelvo allí, y dejo de sentirm
             }
             state.lastActive = -1;
           }
+
+          const postcard = audio.closest("[data-postcard]");
+          if (postcard) {
+            postcard.classList.remove("is-playing");
+          }
+          if (currentAudio === audio) {
+            currentAudio = null;
+            currentPlayButton = null;
+            currentPostcard = null;
+          }          
         });
 
         playBtn.addEventListener("click", async () => {
-          if (audio.paused) {
-            if (currentAudio && currentAudio !== audio) {
-              currentAudio.pause();
-              if (currentPlayButton) {
-                currentPlayButton.innerHTML = "<span>▶</span>";
+            if (audio.paused) {
+              // Si hay otro audio sonando, lo paramos y le quitamos el estado visual
+              if (currentAudio && currentAudio !== audio) {
+                currentAudio.pause();
+                if (currentPlayButton) {
+                  currentPlayButton.innerHTML = "<span>▶</span>";
+                }
+                if (currentPostcard) {
+                  currentPostcard.classList.remove("is-playing");
+                }
+              }
+
+              try {
+                await audio.play();
+                playBtn.innerHTML = "<span>❚❚</span>";
+                currentAudio = audio;
+                currentPlayButton = playBtn;
+                currentPostcard = audio.closest("[data-postcard]");
+                if (currentPostcard) {
+                  currentPostcard.classList.add("is-playing");
+                }
+              } catch (err) {
+                console.error("Error al reproducir audio:", err);
+              }
+            } else {
+              audio.pause();
+              playBtn.innerHTML = "<span>▶</span>";
+              const postcard = audio.closest("[data-postcard]");
+              if (postcard) {
+                postcard.classList.remove("is-playing");
               }
             }
-            try {
-              await audio.play();
-              playBtn.innerHTML = "<span>❚❚</span>";
-              currentAudio = audio;
-              currentPlayButton = playBtn;
-            } catch (err) {
-              console.error("Error al reproducir audio:", err);
-            }
-          } else {
-            audio.pause();
-            playBtn.innerHTML = "<span>▶</span>";
-          }
         });
 
         if (backBtn) {
@@ -1234,6 +1307,10 @@ Y cuando hoy cierro los ojos y escucho las olas, vuelvo allí, y dejo de sentirm
                 playBtn.innerHTML = "<span>❚❚</span>";
                 currentAudio = audio;
                 currentPlayButton = playBtn;
+                currentPostcard = audio.closest("[data-postcard]");
+                if (currentPostcard) {
+                  currentPostcard.classList.add("is-playing");
+                }                
               })
               .catch((err) =>
                 console.error("Error al reproducir la última postal:", err)
