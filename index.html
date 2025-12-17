@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Postales sonoras de compañía</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- PWA: color del navegador en móvil -->
+  <meta name="theme-color" content="#050816" />
+
+  <!-- PWA: manifest (créalo como manifest.webmanifest en la raíz) -->
+  <link rel="manifest" href="manifest.webmanifest" />
+
+  <!-- (Opcional pero recomendable) Icono para añadir a pantalla de inicio en iOS -->
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <style>
+    :root {
+      --color-bg: #050816;
+      --color-bg-soft: #0d1020;
+      --color-card: #141726;
+      --color-accent: #ffb75e;
+      --color-accent-soft: rgba(255, 183, 94, 0.15);
+      --color-text: #f9fafb;
+      --color-text-muted: #a1a1aa;
+      --radius-lg: 18px;
+      --radius-pill: 999px;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.45);
+      --gap: 1.4rem;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top, #111827 0, #020617 55%);
+      color: var(--color-text);
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .content {
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 2.5rem;
+    }
+
+    header.site-header {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero {
+      position: relative;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      overflow: hidden;
+      max-height: 540px;
+      isolation: isolate;
+    }
+
+    .hero-media {
+      position: relative;
+      height: 260px;
+      overflow: hidden;
+    }
+
+    .hero-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: saturate(1.1) contrast(1.05);
+      transform: scale(1.02);
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(2, 6, 23, 0.9),
+        rgba(2, 6, 23, 0.2)
+      );
+    }
+
+    .hero-body {
+      padding: 1.4rem 1.25rem 1.5rem;
+      background: linear-gradient(
+        to bottom,
+        rgba(8, 11, 29, 0.95),
+        rgba(8, 11, 29, 0.98)
+      );
+    }
+
+    .hero-title {
+      font-size: 1.5rem;
+      margin: 0 0 0.4rem;
+      letter-spacing: 0.02em;
+    }
+
+    .hero-subtitle {
+      margin: 0 0 1.1rem;
+      font-size: 0.95rem;
+      color: var(--color-text-muted);
+      max-width: 34rem;
+    }
+
+    .hero-cta-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      border-radius: var(--radius-pill);
+      padding: 0.6rem 1.4rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      transition: transform 0.12s ease, box-shadow 0.12s ease,
+        background-color 0.12s ease, opacity 0.12s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ffb75e, #ed8f03);
+      color: #111827;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.97) translateY(1px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border-radius: var(--radius-pill);
+      color: var(--color-text-muted);
+      padding-inline: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.7rem;
+      border-radius: var(--radius-pill);
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      color: var(--color-text-muted);
+    }
+
+    main {
+      flex: 1;
+    }
+
+    section.postcards {
+      margin-top: 2rem;
+    }
+
+    .section-header {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 1.1rem;
+    }
+
+    .section-title {
+      font-size: 1.15rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+
+    .section-subtitle {
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      max-width: 20rem;
+    }
+
+    .postcard-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+    }
+
+    .postcard {
+      background: linear-gradient(
+        135deg,
+        rgba(15, 23, 42, 0.96),
+        rgba(15, 23, 42, 0.94)
+      );
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .postcard-media {
+      position: relative;
+      height: 190px;
+      overflow: hidden;
+    }
+
+    .postcard-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.03);
+    }
+
+    .postcard-media-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(15, 23, 42, 1),
+        rgba(15, 23, 42, 0.35)
+      );
+    }
+
+    .postcard-body {
+      padding: 1.1rem 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .postcard-header {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .postcard-title {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+
+    .postcard-meta {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .postcard-tag {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+    }
+
+    .duration-chip {
+      font-size: 0.75rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: var(--radius-pill);
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: #e5e7eb;
+    }
+
+    .synopsis {
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      line-height: 1.45;
+    }
+
+    .player {
+      background: radial-gradient(
+        circle at top left,
+        var(--color-accent-soft),
+        rgba(15, 23, 42, 0.9)
+      );
+      border-radius: var(--radius-lg);
+      padding: 0.8rem 0.75rem 0.85rem;
+      border: 1px solid rgba(249, 250, 251, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .player-main-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .player-play {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #f97316;
+      color: #111827;
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.6);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .player-play span {
+      font-size: 1.25rem;
+      margin-left: 1px;
+    }
+
+    .player-track {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .player-times {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--color-text-muted);
+    }
+
+    .player-slider-wrapper {
+      position: relative;
+    }
+
+    .player-range {
+      width: 100%;
+      appearance: none;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(30, 64, 175, 0.7);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .player-range::-webkit-slider-thumb {
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: #f97316;
+      border: 2px solid #0b1120;
+      box-shadow: 0 0 0 6px rgba(251, 146, 60, 0.28);
+    }
+
+    .player-range::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: #f97316;
+      border: 2px solid #0b1120;
+      box-shadow: 0 0 0 6px rgba(251, 146, 60, 0.28);
+    }
+
+    .player-secondary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .player-transport {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-icon {
+      border-radius: var(--radius-pill);
+      padding: 0.3rem 0.55rem;
+      font-size: 0.75rem;
+      border: none;
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--color-text-muted);
+      cursor: pointer;
+    }
+
+    .btn-icon span {
+      font-size: 0.8rem;
+    }
+
+    .player-speed {
+      display: flex;
+      gap: 0.25rem;
+      padding: 0.2rem;
+      border-radius: var(--radius-pill);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .speed-btn {
+      border-radius: var(--radius-pill);
+      padding: 0.25rem 0.65rem;
+      font-size: 0.78rem;
+      border: none;
+      background: transparent;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      min-width: 2.7rem;
+      text-align: center;
+    }
+
+    .speed-btn.is-active {
+      background: rgba(248, 250, 252, 0.1);
+      color: #e5e7eb;
+    }
+
+    details.postcard-text {
+      border-radius: var(--radius-lg);
+      padding: 0.7rem 0.85rem 0.75rem;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+    }
+
+    details.postcard-text > summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: #e5e7eb;
+      list-style: none;
+    }
+
+    details.postcard-text summary::marker,
+    details.postcard-text summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details.postcard-text summary::after {
+      content: "▾";
+      display: inline-block;
+      margin-left: 0.35rem;
+      font-size: 0.7rem;
+      transform-origin: center;
+      transition: transform 0.12s ease;
+      color: var(--color-text-muted);
+    }
+
+    details[open].postcard-text summary::after {
+      transform: rotate(180deg) translateY(1px);
+    }
+
+    details.postcard-text p {
+      margin: 0.45rem 0 0;
+      line-height: 1.5;
+    }
+
+    /* NUEVO: palabras de la transcripción resaltadas */
+    .transcript-word {
+      transition: background-color 0.15s ease, color 0.15s ease;
+      border-radius: 0.35rem;
+      padding: 0.04rem 0.12rem;
+    }
+
+    .transcript-word.is-active {
+      background: var(--color-accent);
+      color: #111827;
+    }
+
+    footer.site-footer {
+      margin-top: 2rem;
+      padding: 1rem 1.25rem 1.6rem;
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      text-align: center;
+      border-top: 1px solid rgba(31, 41, 55, 0.9);
+      background: radial-gradient(
+        circle at top,
+        rgba(15, 23, 42, 0.9),
+        rgba(15, 23, 42, 0.98)
+      );
+    }
+
+    @media (min-width: 640px) {
+      .hero-media {
+        height: 320px;
+      }
+
+      .hero-body {
+        padding-inline: 1.8rem;
+      }
+
+      .postcard-body {
+        padding-inline: 1.3rem;
+      }
+    }
+
+    @media (min-width: 900px) {
+      .content {
+        padding-inline: 2rem;
+      }
+
+      .postcard-list {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1.5rem;
+      }
+
+      .postcard {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .postcard-media {
+        height: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="site-header">
+      <div class="hero">
+        <div class="hero-media">
+          <img
+            src="img/hero-postales.png"
+            alt="Ilustración abstracta y cálida que evoca compañía y calma"
+          />
+          <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-body content">
+          <p class="pill">Micrositio · Postales sonoras</p>
+          <h1 class="hero-title">Pequeñas historias para no sentirte solo</h1>
+          <p class="hero-subtitle">
+            Tres momentos cotidianos convertidos en postales sonoras. Elige una,
+            escucha su historia o lee su texto cuando mejor te encaje.
+          </p>
+          <div class="hero-cta-row">
+            <button
+              class="btn btn-primary"
+              id="cta-last-postcard"
+              type="button"
+              aria-label="Escuchar la última postal publicada"
+            >
+              <span>▶</span>
+              <span>Escuchar la última postal</span>
+            </button>
+            <button class="btn btn-ghost" type="button">
+              <span>Explorar postales</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="content">
+        <section class="postcards" aria-label="Listado de postales sonoras">
+          <div class="section-header">
+            <h2 class="section-title">Postales sonoras</h2>
+            <p class="section-subtitle">
+              Reproduce el audio, ajusta la velocidad o simplemente lee el
+              texto asociado a cada postal.
+            </p>
+          </div>
+
+          <div class="postcard-list">
+            <!-- POSTAL 1: Playa -->
+            <article class="postcard" data-postcard>
+              <div class="postcard-media">
+                <img
+                  src="img/postal-playa.png"
+                  alt="Escena de una playa tranquila al atardecer"
+                />
+                <div class="postcard-media-overlay"></div>
+              </div>
+              <div class="postcard-body">
+                <header class="postcard-header">
+                  <h3 class="postcard-title">Cuando todo era sencillo</h3>
+                  <div class="postcard-meta">
+                    <span class="postcard-tag">Playa · Atardecer</span>
+                    <span class="duration-chip" data-duration>01:08</span>
+                  </div>
+                </header>
+
+                <p class="synopsis">
+                  Un verano en la playa con amigos y un primer amor naciente. Atardeceres irreales y la sensación de un instante eterno. Ese recuerdo ahora aleja la soledad.
+                </p>
+
+                <div class="player" data-player>
+                  <audio
+                    src="audio/postal-playa.mp3"
+                    preload="metadata"
+                    aria-label="Postal sonora: Última luz en la orilla"
+                  ></audio>
+
+                  <div class="player-main-row">
+                    <button
+                      class="player-play"
+                      type="button"
+                      data-play
+                      aria-label="Reproducir o pausar"
+                    >
+                      <span>▶</span>
+                    </button>
+                    <div class="player-track">
+                      <div class="player-times">
+                        <span data-current-time>00:00</span>
+                        <span data-total-time>00:00</span>
+                      </div>
+                      <div class="player-slider-wrapper">
+                        <input
+                          class="player-range"
+                          type="range"
+                          min="0"
+                          max="100"
+                          step="0.5"
+                          value="0"
+                          aria-label="Progreso de la reproducción"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="player-secondary-row">
+                    <div class="player-transport" aria-label="Controles extra">
+                      <button
+                        class="btn-icon"
+                        type="button"
+                        data-back
+                        aria-label="Retroceder diez segundos"
+                      >
+                        <span>⟲ 10s</span>
+                      </button>
+                      <button
+                        class="btn-icon"
+                        type="button"
+                        data-forward
+                        aria-label="Avanzar diez segundos"
+                      >
+                        <span>10s ⟳</span>
+                      </button>
+                    </div>
+
+                    <div
+                      class="player-speed"
+                      aria-label="Ajustar velocidad de reproducción"
+                    >
+                      <button
+                        class="speed-btn is-active"
+                        type="button"
+                        data-speed="0.75"
+                      >
+                        0.75×
+                      </button>
+                      <button
+                        class="speed-btn"
+                        type="button"
+                        data-speed="1"
+                      >
+                        1.0×
+                      </button>
+                      <button
+                        class="speed-btn"
+                        type="button"
+                        data-speed="1.25"
+                      >
+                        1.25×
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <details class="postcard-text">
+                  <summary>Transcripción</summary>
+                  <p>
+                    Aún puedo sentir la arena caliente bajo los pies descalzos.
+Éramos un pequeño grupo de amigos, sin horarios, sin prisas, sin más plan que dejar que el día se estirara hasta que se escondiera el sol.
+
+El mar parecía no tener fin, igual que nuestras conversaciones.
+Hablábamos de nada y de todo, tumbados en las toallas, dibujando formas en la arena que se borraban con cada ola.
+
+Entre todas esas voces, había una que sonaba diferente.
+La de esa persona especial con la que compartía miradas que duraban un segundo más de lo normal.
+Un pequeño roce de manos al pasar la crema, una risa que se quedaba resonando por dentro.
+
+Ese día, al atardecer, los colores del cielo eran casi irreales.
+Nos quedamos en silencio, mirando cómo el sol se escondía, y sentí que el mundo entero cabía en ese momento.
+
+No sabíamos cómo llamarlo aún, pero ahí estaba:
+la sensación de que el verano, el mar y ese primer amor iban a acompañarme siempre.
+Y cuando hoy cierro los ojos y escucho las olas, vuelvo allí, y dejo de sentirme tan solo.
+                  </p>
+                </details>
+              </div>
+            </article>
+
+            <!-- POSTAL 2: Viaje en coche -->
+            <article class="postcard" data-postcard>
+              <div class="postcard-media">
+                <img
+                  src="img/postal-coche.png"
+                  alt="Interior de un coche en movimiento, con una carretera al fondo"
+                />
+                <div class="postcard-media-overlay"></div>
+              </div>
+              <div class="postcard-body">
+                <header class="postcard-header">
+                  <h3 class="postcard-title">Kilómetros de conversación</h3>
+                  <div class="postcard-meta">
+                    <span class="postcard-tag">Carretera · Noche suave</span>
+                    <span class="duration-chip" data-duration>02:48</span>
+                  </div>
+                </header>
+
+                <p class="synopsis">
+                  Un viaje familiar en un coche lleno. La carretera era larga, pero la ilusión por llegar y los abrazos finales creaban un refugio que perdura en el recuerdo.
+                </p>
+
+                <div class="player" data-player>
+                  <audio
+                    src="audio/postal-coche.mp3"
+                    preload="metadata"
+                    aria-label="Postal sonora: Kilómetros de conversación"
+                  ></audio>
+
+                  <div class="player-main-row">
+                    <button
+                      class="player-play"
+                      type="button"
+                      data-play
+                      aria-label="Reproducir o pausar"
+                    >
+                      <span>▶</span>
+                    </button>
+                    <div class="player-track">
+                      <div class="player-times">
+                        <span data-current-time>00:00</span>
+                        <span data-total-time>00:00</span>
+                      </div>
+                      <div class="player-slider-wrapper">
+                        <input
+                          class="player-range"
+                          type="range"
+                          min="0"
+                          max="100"
+                          step="0.5"
+                          value="0"
+                          aria-label="Progreso de la reproducción"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="player-secondary-row">
+                    <div class="player-transport">
+                      <button
+                        class="btn-icon"
+                        type="button"
+                        data-back
+                        aria-label="Retroceder diez segundos"
+                      >
+                        <span>⟲ 10s</span>
+                      </button>
+                      <button
+                        class="btn-icon"
+                        type="button"
+                        data-forward
+                        aria-label="Avanzar diez segundos"
+                      >
+                        <span>10s ⟳</span>
+                      </button>
+                    </div>
+
+                    <div class="player-speed">
+                      <button
+                        class="speed-btn is-active"
+                        type="button"
+                        data-speed="0.75"
+                      >
+                        0.75×
+                      </button>
+                      <button
+                        class="speed-btn"
+                        type="button"
+                        data-speed="1"
+                      >
+                        1.0×
+                      </button>
+                      <button
+                        class="speed-btn"
+                        type="button"
+                        data-speed="1.25"
+                      >
+                        1.25×
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <details class="postcard-text">
+                  <summary>Transcripción</summary>
+                  <p>
+                    El coche era pequeño, pero de alguna manera cabíamos todos…
+                    personas, maletas, bolsas improvisadas y algún que otro juguete perdido entre los asientos.
+
+                    La carretera parecía interminable, una línea que se estiraba hacia el horizonte.
+                    El aire olía a mezcla de gasolina, bocadillos envueltos en papel y refrescos que se agitaban en los posavasos.
+
+                    Sonaba la radio, y alguien siempre desafinaba, pero daba igual.
+                    Cantábamos como si ese viaje fuera un concierto privado.
+                    De vez en cuando, una voz preguntaba: “¿Falta mucho?”,
+                    y otra contestaba con la misma frase de siempre: “Ya casi estamos”.
+
+                    Lo mejor llegaba al final, cuando aparecía el pueblo, la ciudad o el barrio conocido.
+                    Las fachadas familiares, el giro en esa esquina de siempre,
+                    las luces encendidas esperando nuestra llegada.
+
+                    Al bajar del coche, el cansancio se mezclaba con la emoción.
+                    Abrazos, risas, preguntas repetidas año tras año,
+                    y la sensación de que ese lugar, y esas personas, eran un refugio.
+
+                    Hoy, cuando escucho el sonido de un motor alejándose por la carretera,
+                    recuerdo aquellos viajes en los que el espacio era mínimo,
+                    pero la ilusión por reencontrarnos lo llenaba todo.
+                    Y por un momento, vuelvo a sentirme acompañado.
+                  </p>
+                </details>
+              </div>
+            </article>
+
+            <!-- POSTAL 3: Día de nieve -->
+            <article class="postcard" data-postcard>
+              <div class="postcard-media">
+                <img
+                  src="img/postal-nieve.png"
+                  alt="Paisaje urbano o natural cubierto de nieve, con huellas recientes"
+                />
+                <div class="postcard-media-overlay"></div>
+              </div>
+              <div class="postcard-body">
+                <header class="postcard-header">
+                  <h3 class="postcard-title">Silencio de nieve</h3>
+                  <div class="postcard-meta">
+                    <span class="postcard-tag">Invierno · Exterior</span>
+                    <span class="duration-chip" data-duration>03:05</span>
+                  </div>
+                </header>
+
+                <p class="synopsis">
+                  La primera nevada transforma todo en un mundo mágico. Juegos, bolas de nieve y un muñeco. El recuerdo de esa felicidad y descubrimiento derrite la soledad actual.
+                </p>
+
+                <div class="player" data-player>
+                  <audio
+                    src="audio/postal-nieve.mp3"
+                    preload="metadata"
+                    aria-label="Postal sonora: Silencio de nieve"
+                  ></audio>
+
+                  <div class="player-main-row">
+                    <button
+                      class="player-play"
+                      type="button"
+                      data-play
+                      aria-label="Reproducir o pausar"
+                    >
+                      <span>▶</span>
+                    </button>
+                    <div class="player-track">
+                      <div class="player-times">
+                        <span data-current-time>00:00</span>
+                        <span data-total-time>00:00</span>
+                      </div>
+                      <div class="player-slider-wrapper">
+                        <input
+                          class="player-range"
+                          type="range"
+                          min="0"
+                          max="100"
+                          step="0.5"
+                          value="0"
+                          aria-label="Progreso de la reproducción"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="player-secondary-row">
+                    <div class="player-transport">
+                      <button
+                        class="btn-icon"
+                        type="button"
+                        data-back
+                        aria-label="Retroceder diez segundos"
+                      >
+                        <span>⟲ 10s</span>
+                      </button>
+                      <button
+                        class="btn-icon"
+                        type="button"
+                        data-forward
+                        aria-label="Avanzar diez segundos"
+                      >
+                        <span>10s ⟳</span>
+                      </button>
+                    </div>
+
+                    <div class="player-speed">
+                      <button
+                        class="speed-btn is-active"
+                        type="button"
+                        data-speed="0.75"
+                      >
+                        0.75×
+                      </button>
+                      <button
+                        class="speed-btn"
+                        type="button"
+                        data-speed="1"
+                      >
+                        1.0×
+                      </button>
+                      <button
+                        class="speed-btn"
+                        type="button"
+                        data-speed="1.25"
+                      >
+                        1.25×
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <details class="postcard-text">
+                  <summary>Transcripción</summary>
+                  <p>
+                      Al despertar, algo era distinto.
+                      El mundo, normalmente ruidoso, sonaba como si alguien hubiera bajado el volumen.
+                      Al asomarme a la ventana, lo entendí: todo estaba cubierto de blanco.
+
+                      Cada paso era un pequeño descubrimiento, un crujido nuevo bajo los pies.
+                      El aire cortaba la cara, pero la emoción calentaba por dentro.
+                      Todo lo conocido —las calles, los coches, los árboles— parecía disfrazado,
+                      como si el barrio hubiera decidido jugar a ser otro lugar.
+
+                      No tardaron en aparecer las primeras bolas de nieve,
+                      torpes, mal hechas, pero lanzadas con una alegría perfecta.
+                      Las manos se enfriaban, los guantes se empapaban,
+                      pero nadie quería entrar todavía.
+
+                      Entre todos dimos forma a un muñeco de nieve algo desproporcionado.
+                      Nariz improvisada, ojos desiguales, sonrisa torcida,
+                      pero nos miraba como si también estuviera sorprendido de estar ahí.
+
+                      Las mejillas rojas, la respiración visible en pequeñas nubes,
+                      y esa mezcla de cansancio y felicidad cuando por fin volvíamos al interior,
+                      donde el contraste del calor parecía un abrazo.
+
+                      Hoy, cuando el frío asoma y el cielo se vuelve gris,
+                      cierro los ojos y vuelvo a aquella primera nevada,
+                      a las risas, a las carreras, a la magia de descubrir algo nuevo.
+                      Y en ese recuerdo, la sensación de soledad se derrite,
+                      igual que la nieve al llegar la primavera.
+                  </p>
+                </details>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <p>Postales sonoras de compañía · PEC 3 - IA generativa (UOC)</p>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      const PLAYBACK_SPEED_KEY = "postales_playback_speed";
+
+      function formatTime(seconds) {
+        if (!Number.isFinite(seconds) || seconds < 0) {
+          return "00:00";
+        }
+        const s = Math.floor(seconds % 60);
+        const m = Math.floor(seconds / 60);
+        const mm = m.toString().padStart(2, "0");
+        const ss = s.toString().padStart(2, "0");
+        return mm + ":" + ss;
+      }
+
+      // NUEVO: estado de transcripciones por audio
+      const transcriptState = new WeakMap();
+
+      function updateTranscriptHighlight(audio) {
+        const state = transcriptState.get(audio);
+        if (!state) return;
+        const spans = state.spans;
+        if (!spans || !spans.length) return;
+        if (!Number.isFinite(audio.duration) || audio.duration <= 0) return;
+
+        const ratio = audio.currentTime / audio.duration;
+        const index = Math.min(
+          spans.length - 1,
+          Math.max(0, Math.floor(ratio * spans.length))
+        );
+
+        if (index === state.lastActive) return;
+
+        if (
+          typeof state.lastActive === "number" &&
+          state.lastActive >= 0 &&
+          state.lastActive < spans.length
+        ) {
+          spans[state.lastActive].classList.remove("is-active");
+        }
+
+        const active = spans[index];
+        active.classList.add("is-active");
+        state.lastActive = index;
+
+        active.scrollIntoView({
+          block: "nearest",
+          behavior: "smooth",
+        });
+      }
+
+      let sharedSpeed = parseFloat(
+        window.localStorage.getItem(PLAYBACK_SPEED_KEY) || "1"
+      );
+      if (!Number.isFinite(sharedSpeed) || sharedSpeed <= 0) {
+        sharedSpeed = 1;
+      }
+
+      let currentAudio = null;
+      let currentPlayButton = null;
+
+      const players = document.querySelectorAll("[data-player]");
+
+      players.forEach((player) => {
+        const audio = player.querySelector("audio");
+        const playBtn = player.querySelector("[data-play]");
+        const backBtn = player.querySelector("[data-back]");
+        const forwardBtn = player.querySelector("[data-forward]");
+        const range = player.querySelector(".player-range");
+        const currentTimeEl = player.querySelector("[data-current-time]");
+        const totalTimeEl = player.querySelector("[data-total-time]");
+        const speedButtons = player.querySelectorAll(".speed-btn");
+
+        audio.playbackRate = sharedSpeed;
+
+        // NUEVO: preparar la transcripción palabra a palabra para este player
+        const postcard = player.closest("[data-postcard]");
+        if (postcard) {
+          const transcriptDetails = postcard.querySelector("details.postcard-text");
+          if (transcriptDetails) {
+            const p = transcriptDetails.querySelector("p");
+            if (p) {
+              const originalText = p.textContent.trim().replace(/\s+/g, " ");
+              const words = originalText.split(" ").filter(Boolean);
+              p.innerHTML = words
+                .map(
+                  (word, idx) =>
+                    '<span class="transcript-word" data-word-index="' +
+                    idx +
+                    '">' +
+                    word +
+                    "</span>"
+                )
+                .join(" ");
+              const spans = Array.from(
+                p.querySelectorAll(".transcript-word")
+              );
+              transcriptState.set(audio, {
+                spans,
+                lastActive: -1,
+              });
+            }
+          }
+        }
+
+        speedButtons.forEach((btn) => {
+          const speed = parseFloat(btn.dataset.speed || "1");
+          if (Math.abs(speed - sharedSpeed) < 0.001) {
+            btn.classList.add("is-active");
+          } else {
+            btn.classList.remove("is-active");
+          }
+        });
+
+        audio.addEventListener("loadedmetadata", () => {
+          if (Number.isFinite(audio.duration)) {
+            totalTimeEl.textContent = formatTime(audio.duration);
+          }
+        });
+
+        audio.addEventListener("timeupdate", () => {
+          if (Number.isFinite(audio.duration) && audio.duration > 0) {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            range.value = progress;
+          }
+          currentTimeEl.textContent = formatTime(audio.currentTime);
+
+          // NUEVO: actualizar palabra activa
+          updateTranscriptHighlight(audio);
+        });
+
+        audio.addEventListener("ended", () => {
+          playBtn.innerHTML = "<span>▶</span>";
+          range.value = 0;
+          currentTimeEl.textContent = "00:00";
+
+          // NUEVO: limpiar resaltado en transcripción
+          const state = transcriptState.get(audio);
+          if (state && state.spans && state.spans.length) {
+            if (
+              typeof state.lastActive === "number" &&
+              state.lastActive >= 0 &&
+              state.lastActive < state.spans.length
+            ) {
+              state.spans[state.lastActive].classList.remove("is-active");
+            }
+            state.lastActive = -1;
+          }
+        });
+
+        playBtn.addEventListener("click", async () => {
+          if (audio.paused) {
+            if (currentAudio && currentAudio !== audio) {
+              currentAudio.pause();
+              if (currentPlayButton) {
+                currentPlayButton.innerHTML = "<span>▶</span>";
+              }
+            }
+            try {
+              await audio.play();
+              playBtn.innerHTML = "<span>❚❚</span>";
+              currentAudio = audio;
+              currentPlayButton = playBtn;
+            } catch (err) {
+              console.error("Error al reproducir audio:", err);
+            }
+          } else {
+            audio.pause();
+            playBtn.innerHTML = "<span>▶</span>";
+          }
+        });
+
+        if (backBtn) {
+          backBtn.addEventListener("click", () => {
+            audio.currentTime = Math.max(0, audio.currentTime - 10);
+          });
+        }
+
+        if (forwardBtn) {
+          forwardBtn.addEventListener("click", () => {
+            if (Number.isFinite(audio.duration)) {
+              audio.currentTime = Math.min(
+                audio.duration,
+                audio.currentTime + 10
+              );
+            }
+          });
+        }
+
+        range.addEventListener("input", () => {
+          if (Number.isFinite(audio.duration)) {
+            const value = parseFloat(range.value || "0");
+            const clamped = Math.min(100, Math.max(0, value));
+            audio.currentTime = (clamped / 100) * audio.duration;
+          }
+        });
+
+        speedButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const chosenSpeed = parseFloat(btn.dataset.speed || "1") || 1;
+            sharedSpeed = chosenSpeed;
+            window.localStorage.setItem(
+              PLAYBACK_SPEED_KEY,
+              String(sharedSpeed)
+            );
+
+            document
+              .querySelectorAll(".speed-btn")
+              .forEach((btn2) => btn2.classList.remove("is-active"));
+
+            document
+              .querySelectorAll(
+                '.speed-btn[data-speed="' + chosenSpeed + '"]'
+              )
+              .forEach((btn2) => btn2.classList.add("is-active"));
+
+            document.querySelectorAll("[data-player] audio").forEach((a) => {
+              a.playbackRate = sharedSpeed;
+            });
+          });
+        });
+      });
+
+      const ctaLast = document.getElementById("cta-last-postcard");
+      if (ctaLast) {
+        ctaLast.addEventListener("click", () => {
+          const postcards = document.querySelectorAll("[data-postcard]");
+          if (!postcards.length) return;
+          const last = postcards[postcards.length - 1];
+          last.scrollIntoView({ behavior: "smooth", block: "start" });
+          const audio = last.querySelector("audio");
+          const playBtn = last.querySelector("[data-play]");
+          if (audio && playBtn) {
+            if (currentAudio && currentAudio !== audio) {
+              currentAudio.pause();
+              if (currentPlayButton) {
+                currentPlayButton.innerHTML = "<span>▶</span>";
+              }
+            }
+            audio
+              .play()
+              .then(() => {
+                playBtn.innerHTML = "<span>❚❚</span>";
+                currentAudio = audio;
+                currentPlayButton = playBtn;
+              })
+              .catch((err) =>
+                console.error("Error al reproducir la última postal:", err)
+              );
+          }
+        });
+      }
+    })();
+
+    // PWA: registro del Service Worker
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker
+          .register("./service-worker.js")
+          .catch(function (err) {
+            console.error("Error al registrar Service Worker:", err);
+          });
+      });
+    }
+  </script>
+</body>
+</html>
